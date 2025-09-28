@@ -179,9 +179,17 @@
             // 更新页面显示
             document.getElementById("todayDate").textContent = 
                 `${today.getFullYear()}年${today.getMonth() + 1}月${today.getDate()}日`;
-            document.getElementById("cycleDay").textContent = `5天循环第${todaySchedule.day}天`;
-            document.getElementById("timeArrangement").textContent = `今日时间安排：${todaySchedule.time}`;
-            document.getElementById("timeDesc").textContent = `时段说明：${todaySchedule.desc}`;
+           	if (todaySchedule.day==5){
+				document.getElementById("cycleDay").textContent = `第${todaySchedule.day}天,大休！`;
+			}
+			else{
+				document.getElementById("cycleDay").textContent = `4天循环第${todaySchedule.day}天`;
+		
+			}
+			document.getElementById("timeArrangement").textContent = `今日时间安排：${todaySchedule.time}`;
+			document.getElementById("timeDesc").textContent = `时段说明：${todaySchedule.desc}`;
+         
+        }
         }
 
         // 显示错误提示
@@ -197,3 +205,4 @@
     </script>
 </body>
 </html>
+
