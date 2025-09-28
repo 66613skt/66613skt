@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>5天循环时间表</title>
+    <style>
+        /* 基础样式，适配手机屏幕 */
+        body {
+            font-family: "Microsoft YaHei", sans-serif;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background-color: white;
+            border-radius: 12px;
+            padding: 30px 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .title {
+            text-align: center;
+            color: #333;
+            margin-bottom: 25px;
+            font-size: 22px;
+        }
+        .date {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 16px;
+        }
+        .schedule-box {
+            border-left: 4px solid #4CAF50;
+            padding-left: 15px;
+            margin-bottom: 20px;
+        }
+        .day {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+        .time {
+            font-size: 17px;
+            color: #2c3e50;
+            margin-bottom: 8px;
+            line-height: 1.6;
+        }
+        .desc {
+            font-size: 15px;
+            color: #666;
+            line-height: 1.5;
+        }
+        .setting {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px dashed #eee;
+        }
+        .setting-title {
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 15px;
+            box-sizing: border-box;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .error {
+            color: #e74c3c;
+            text-align: center;
+            padding: 10px;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="title">循环时间表</h1>
+        <div class="date" id="todayDate"></div>
+        
+        <!-- 错误提示区域 -->
+        <div class="error" id="errorMsg" style="display: none;"></div>
+        
+        <!-- 时间表显示区域 -->
+        <div class="schedule-box">
+            <div class="day" id="cycleDay"></div>
+            <div class="time" id="timeArrangement"></div>
+            <div class="desc" id="timeDesc"></div>
+        </div>
+        
+        <!-- 起始日设置区域 -->
+        <div class="setting">
+            <div class="setting-title">设置所需要查询的时间</div>
+            <input type="date" id="startDateInput" value="2024-05-01">
+            <button onclick="updateSchedule()">更新时间表</button>
+        </div>
+    </div>
+
+    <script>
+        // 定义5天循环的固定时间表
+        const scheduleCycle = [
+			{ day: 3, time: "2:00 - 4:00、15:00 - 18:00", desc: "凌晨2小时、午后3小时" },
+			{ day: 4, time: "0:00 - 2:00、12:00 - 15:00", desc: "凌晨2小时、午间3小时" },
+			{ day: 5, time: "6:00 - 8:00", desc: "仅早间2小时" },
+            { day: 1, time: "6:00 - 8:00、21:00 - 24:00", desc: "早间2小时、夜间3小时" },
+            { day: 2, time: "4:00 - 6:00、18:00 - 21:00", desc: "凌晨2小时、傍晚3小时" },
+
+        ];
+
+        // 页面加载时自动计算并显示今日时间表
+        window.onload = function() {
+			// 获取当前日期并格式化为YYYY-MM-DD（适配date输入框）
+			            const today = new Date();
+			            const year = today.getFullYear();
+			            const month = String(today.getMonth() + 1).padStart(2, '0'); // 月份从0开始，补0
+			            const day = String(today.getDate()).padStart(2, '0');
+			            const todayStr = `${year}-${month}-${day}`;
+			            
+			            // 设置起始日输入框默认值为当前日期
+			            document.getElementById("startDateInput").value = todayStr;
+			            
+			            // 自动计算并显示时间表
+			            updateSchedule();
+
+        };
+
+        // 计算并更新时间表
+        function updateSchedule() {
+            // 获取用户设置的起始日（默认2024-05-01）
+            const startDateStr = document.getElementById("startDateInput").value;
+            const startDate = new Date(startDateStr);
+            const today = new Date();
+            
+            // 重置错误提示
+            document.getElementById("errorMsg").style.display = "none";
+
+            // 验证日期格式（防止无效日期）
+            if (isNaN(startDate.getTime())) {
+                showError("起始日格式错误，请选择有效的日期");
+                return;
+            }
+
+            // 确保起始日不晚于当前日期
+            if (startDate > today) {
+                showError("起始日不能晚于当前日期，请重新选择");
+                return;
+            }
+
+            // 计算起始日到今日的天数差（忽略时分秒，只算日期差）
+            const startDateOnly = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate());
+            const todayOnly = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+            const daysDiff = Math.floor((todayOnly - startDateOnly) / (1000 * 60 * 60 * 24));
+
+            // 计算当前在5天循环中的位置（0-4对应1-5天）
+            const cycleIndex = daysDiff % 5;
+            const todaySchedule = scheduleCycle[cycleIndex];
+
+            // 更新页面显示
+            document.getElementById("todayDate").textContent = 
+                `${today.getFullYear()}年${today.getMonth() + 1}月${today.getDate()}日`;
+            document.getElementById("cycleDay").textContent = `5天循环第${todaySchedule.day}天`;
+            document.getElementById("timeArrangement").textContent = `今日时间安排：${todaySchedule.time}`;
+            document.getElementById("timeDesc").textContent = `时段说明：${todaySchedule.desc}`;
+        }
+
+        // 显示错误提示
+        function showError(msg) {
+            const errorEl = document.getElementById("errorMsg");
+            errorEl.textContent = msg;
+            errorEl.style.display = "block";
+            // 清空时间表显示
+            document.getElementById("cycleDay").textContent = "";
+            document.getElementById("timeArrangement").textContent = "";
+            document.getElementById("timeDesc").textContent = "";
+        }
+    </script>
+</body>
+</html>
