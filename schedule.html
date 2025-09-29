@@ -119,12 +119,11 @@
     <script>
         // 定义5天循环的固定时间表
         const scheduleCycle = [
-			{ day: 4, time: "0:00 - 2:00、9:00 - 12:00", desc: "凌晨2小时、午间3小时" },
-   			{ day: 3, time: "2:00 - 4:00、12:00 - 15:00", desc: "凌晨2小时、午后3小时" },
-            { day: 2, time: "4:00 - 6:00、15:00 - 18:00", desc: "凌晨2小时、傍晚3小时" },
-			{ day: 1, time: "6:00 - 8:00、18:00 - 21:00", desc:"早间2小时、夜间3小时" },
-			{ day: 5, time: "8:00 - 10:00、21:00 - 24:00", desc: "早间2小时、夜间3小时" },
-
+   			{ day: 4, time: "2:00 - 4:00、12:00 - 15:00", desc: "凌晨2小时、午后3小时" },
+            { day: 3, time: "4:00 - 6:00、15:00 - 18:00", desc: "凌晨2小时、傍晚3小时" },
+			{ day: 2, time: "6:00 - 8:00、18:00 - 21:00", desc:"早间2小时、夜间3小时" },
+			{ day: 1, time: "8:00 - 10:00、21:00 - 24:00", desc: "早间2小时、夜间3小时" },
+			{ day: 5, time: "0:00 - 2:00、9:00 - 12:00", desc: "凌晨2小时、午间3小时" },
         ];
 
         // 页面加载时自动计算并显示今日时间表
@@ -179,13 +178,7 @@
             // 更新页面显示
             document.getElementById("todayDate").textContent = 
                 `${today.getFullYear()}年${today.getMonth() + 1}月${today.getDate()}日`;
-           	if (todaySchedule.day==5){
-				document.getElementById("cycleDay").textContent = `第${todaySchedule.day}天,大休！`;
-			}
-			else{
-				document.getElementById("cycleDay").textContent = `4天循环第${todaySchedule.day}天`;
-		
-			}
+			document.getElementById("cycleDay").textContent = `5天循环第${todaySchedule.day}天`;
 			document.getElementById("timeArrangement").textContent = `今日时间安排：${todaySchedule.time}`;
 			document.getElementById("timeDesc").textContent = `时段说明：${todaySchedule.desc}`;
          
@@ -205,6 +198,7 @@
     </script>
 </body>
 </html>
+
 
 
 
