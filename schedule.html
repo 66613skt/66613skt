@@ -3,205 +3,328 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>5天循环时间表</title>
-    <style>
-        /* 基础样式，适配手机屏幕 */
-        body {
-            font-family: "Microsoft YaHei", sans-serif;
-            max-width: 600px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #f5f5f5;
+    <title>循环时间表</title>
+    <!-- Tailwind CSS v3 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3b82f6',
+                        secondary: '#64748b',
+                        accent: '#f97316',
+                        success: '#10b981',
+                        warning: '#f59e0b',
+                        danger: '#ef4444',
+                        light: '#f8fafc',
+                        dark: '#1e293b'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.5s ease-in-out',
+                        'slide-up': 'slideUp 0.5s ease-in-out',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        },
+                        slideUp: {
+                            '0%': { transform: 'translateY(20px)', opacity: '0' },
+                            '100%': { transform: 'translateY(0)', opacity: '1' },
+                        }
+                    }
+                }
+            }
         }
-        .container {
-            background-color: white;
-            border-radius: 12px;
-            padding: 30px 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        .title {
-            text-align: center;
-            color: #333;
-            margin-bottom: 25px;
-            font-size: 22px;
-        }
-        .date {
-            text-align: center;
-            color: #666;
-            margin-bottom: 30px;
-            font-size: 16px;
-        }
-        .schedule-box {
-            border-left: 4px solid #4CAF50;
-            padding-left: 15px;
-            margin-bottom: 20px;
-        }
-        .day {
-            font-size: 18px;
-            color: #333;
-            margin-bottom: 10px;
-            font-weight: bold;
-        }
-        .time {
-            font-size: 17px;
-            color: #2c3e50;
-            margin-bottom: 8px;
-            line-height: 1.6;
-        }
-        .desc {
-            font-size: 15px;
-            color: #666;
-            line-height: 1.5;
-        }
-        .setting {
-            margin-top: 30px;
-            padding-top: 20px;
-            border-top: 1px dashed #eee;
-        }
-        .setting-title {
-            font-size: 16px;
-            color: #333;
-            margin-bottom: 10px;
-        }
-        input {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 10px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            font-size: 15px;
-            box-sizing: border-box;
-        }
-        button {
-            width: 100%;
-            padding: 12px;
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            font-size: 16px;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #45a049;
-        }
-        .error {
-            color: #e74c3c;
-            text-align: center;
-            padding: 10px;
-            margin: 15px 0;
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .glass {
+                background: rgba(255, 255, 255, 0.25);
+                backdrop-filter: blur(10px);
+                -webkit-backdrop-filter: blur(10px);
+                border: 1px solid rgba(255, 255, 255, 0.18);
+            }
+            .glass-dark {
+                background: rgba(30, 41, 59, 0.75);
+                backdrop-filter: blur(10px);
+                -webkit-backdrop-filter: blur(10px);
+                border: 1px solid rgba(255, 255, 255, 0.08);
+            }
+            .text-shadow {
+                text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            }
+            .transition-all-300 {
+                transition: all 300ms ease-in-out;
+            }
         }
     </style>
 </head>
-<body>
-    <div class="container">
-        <h1 class="title">循环时间表</h1>
-        <div class="date" id="todayDate"></div>
-        
-        <!-- 错误提示区域 -->
-        <div class="error" id="errorMsg" style="display: none;"></div>
-        
-        <!-- 时间表显示区域 -->
-        <div class="schedule-box">
-            <div class="day" id="cycleDay"></div>
-            <div class="time" id="timeArrangement"></div>
-            <div class="desc" id="timeDesc"></div>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 min-h-screen font-sans text-gray-800 dark:text-gray-200">
+    <div class="container mx-auto px-4 py-8 max-w-4xl">
+        <!-- 头部 -->
+        <header class="text-center mb-10 animate-fade-in">
+            <h1 class="text-4xl font-bold text-primary dark:text-blue-400 mb-2 text-shadow">循环时间表</h1>
+        </header>
+
+        <!-- 日期选择器 -->
+        <div class="glass rounded-xl p-6 mb-8 shadow-lg animate-slide-up">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+                <div class="flex-1">
+                    <label for="date-input" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">选择日期</label>
+                    <div class="relative">
+                        <input type="date" id="date-input" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 focus:ring-2 focus:ring-primary dark:focus:ring-blue-500 focus:border-transparent transition-all-300">
+                        <span class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                            <i class="fa fa-calendar text-gray-400"></i>
+                        </span>
+                    </div>
+                </div>
+                <div class="flex gap-3">
+                    <button id="today-btn" class="px-4 py-2 bg-primary hover:bg-blue-600 text-white rounded-lg shadow transition-all-300 flex items-center justify-center">
+                        <i class="fa fa-calendar-check-o mr-2"></i>今天
+                    </button>
+                    <button id="search-btn" class="px-4 py-2 bg-accent hover:bg-orange-600 text-white rounded-lg shadow transition-all-300 flex items-center justify-center">
+                        <i class="fa fa-search mr-2"></i>查询
+                    </button>
+                </div>
+            </div>
         </div>
-        
-        <!-- 起始日设置区域 -->
-        <div class="setting">
-            <div class="setting-title">设置所需要查询的时间</div>
-            <input type="date" id="startDateInput" value="2024-05-01">
-            <button onclick="updateSchedule()">更新时间表</button>
+
+        <!-- 日期信息展示 -->
+        <div id="date-info" class="mb-6 text-center animate-fade-in">
+            <h2 class="text-2xl font-bold mb-2">2025年9月30日</h2>
+            <p class="text-lg text-primary dark:text-blue-400">时间表中的第一天</p>
         </div>
+
+        <!-- 时间表展示 -->
+        <div id="schedule-container" class="glass rounded-xl p-6 shadow-lg animate-slide-up">
+            <h3 class="text-xl font-semibold mb-4 flex items-center">
+                <i class="fa fa-clock-o text-primary dark:text-blue-400 mr-2"></i>时间安排
+            </h3>
+            <div class="space-y-4">
+                <!-- 时间块将通过JavaScript动态生成 -->
+                <div class="bg-white dark:bg-gray-700 rounded-lg p-4 shadow-sm hover:shadow-md transition-all-300 border-l-4 border-primary">
+                    <div class="flex justify-between items-center">
+                        <span class="font-medium">0:00 - 2:00</span>
+                        <span class="text-sm text-secondary dark:text-gray-400">时间段1</span>
+                    </div>
+                </div>
+                <div class="bg-white dark:bg-gray-700 rounded-lg p-4 shadow-sm hover:shadow-md transition-all-300 border-l-4 border-primary">
+                    <div class="flex justify-between items-center">
+                        <span class="font-medium">9:00 - 12:00</span>
+                        <span class="text-sm text-secondary dark:text-gray-400">时间段2</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 未来几天预览 -->
+        <div class="mt-10 animate-fade-in">
+            <h3 class="text-xl font-semibold mb-4 flex items-center">
+                <i class="fa fa-calendar-o text-primary dark:text-blue-400 mr-2"></i>未来几天预览
+            </h3>
+            <div id="preview-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                <!-- 未来几天的时间安排将通过JavaScript动态生成 -->
+            </div>
+        </div>
+
     </div>
 
     <script>
-        // 定义5天循环的固定时间表
-        const scheduleCycle = [
-   			{ day: 4, time: "2:00 - 4:00、12:00 - 15:00", desc: "凌晨2小时、午后3小时" },
-            { day: 3, time: "4:00 - 6:00、15:00 - 18:00", desc: "凌晨2小时、傍晚3小时" },
-			{ day: 2, time: "6:00 - 8:00、18:00 - 21:00", desc:"早间2小时、夜间3小时" },
-			{ day: 1, time: "8:00 - 10:00、21:00 - 24:00", desc: "早间2小时、夜间3小时" },
-			{ day: 5, time: "0:00 - 2:00、9:00 - 12:00", desc: "凌晨2小时、午间3小时" },
+        // 时间表数据
+        const scheduleData = [
+            { day: 1, times: ["0:00 - 2:00", "9:00 - 12:00"], label: "第一天" },
+            { day: 2, times: ["8:00 - 10:00", "21:00 - 24:00"], label: "第二天" },
+            { day: 3, times: ["6:00 - 8:00", "18:00 - 21:00"], label: "第三天" },
+            { day: 4, times: ["4:00 - 6:00", "15:00 - 18:00"], label: "第四天" },
+            { day: 5, times: ["2:00 - 4:00", "12:00 - 15:00"], label: "第五天" }
         ];
 
-        // 页面加载时自动计算并显示今日时间表
-        window.onload = function() {
-			// 获取当前日期并格式化为YYYY-MM-DD（适配date输入框）
-			            const today = new Date();
-			            const year = today.getFullYear();
-			            const month = String(today.getMonth() + 1).padStart(2, '0'); // 月份从0开始，补0
-			            const day = String(today.getDate()).padStart(2, '0');
-			            const todayStr = `${year}-${month}-${day}`;
-			            
-			            // 设置起始日输入框默认值为当前日期
-			            document.getElementById("startDateInput").value = todayStr;
-			            
-			            // 自动计算并显示时间表
+        // 基准日期：2025年9月30日（时间表中的第一天）
+        const baseDate = new Date(2025, 8, 30); // 月份是0-based，所以9月是8
 
-			            updateSchedule();
+        // DOM元素
+        const dateInput = document.getElementById('date-input');
+        const todayBtn = document.getElementById('today-btn');
+        const searchBtn = document.getElementById('search-btn');
+        const dateInfo = document.getElementById('date-info');
+        const scheduleContainer = document.getElementById('schedule-container').querySelector('.space-y-4');
+        const previewContainer = document.getElementById('preview-container');
 
-        };
-
-        // 计算并更新时间表
-        function updateSchedule() {
-            // 获取用户设置的起始日（默认2024-05-01）
-            const startDateStr = document.getElementById("startDateInput").value;
-            const startDate = new Date(startDateStr);
+        // 初始化页面
+        function initPage() {
+            // 设置今天的日期为默认值
             const today = new Date();
+            const formattedDate = formatDateForInput(today);
+            dateInput.value = formattedDate;
+
+            // 显示今天的时间表
+            showSchedule(today);
+
+            // 生成未来几天的预览
+            generatePreview(today);
+
+            // 添加事件监听器
+            todayBtn.addEventListener('click', () => {
+                const today = new Date();
+                dateInput.value = formatDateForInput(today);
+                showSchedule(today);
+                generatePreview(today);
+            });
+
+            searchBtn.addEventListener('click', () => {
+                const selectedDate = new Date(dateInput.value);
+                if (!isNaN(selectedDate.getTime())) {
+                    showSchedule(selectedDate);
+                    generatePreview(selectedDate);
+                } else {
+                    alert('请选择有效的日期');
+                }
+            });
+
+            dateInput.addEventListener('change', () => {
+                const selectedDate = new Date(dateInput.value);
+                if (!isNaN(selectedDate.getTime())) {
+                    showSchedule(selectedDate);
+                    generatePreview(selectedDate);
+                }
+            });
+        }
+
+        // 显示指定日期的时间表
+        function showSchedule(date) {
+            // 计算与基准日期的差值（天数）
+            const diffTime = date.getTime() - baseDate.getTime();
+            const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+
+            // 计算是循环中的第几天（1-5）
+            let cycleDay = (diffDays % 5) + 1;
+            if (cycleDay <= 0) cycleDay += 5; // 处理负数情况
+
+            // 获取对应的时间表
+            const schedule = scheduleData.find(item => item.day === cycleDay);
+
+            // 更新日期信息
+            const formattedDate = formatDateForDisplay(date);
+            dateInfo.innerHTML = `
+                <h2 class="text-2xl font-bold mb-2">${formattedDate}</h2>
+                <p class="text-lg text-primary dark:text-blue-400">时间表中的${schedule.label}</p>
+            `;
+
+            // 更新时间表
+            scheduleContainer.innerHTML = '';
+            schedule.times.forEach((time, index) => {
+                const timeBlock = document.createElement('div');
+                timeBlock.className = 'bg-white dark:bg-gray-700 rounded-lg p-4 shadow-sm hover:shadow-md transition-all-300 border-l-4 border-primary animate-fade-in';
+                timeBlock.style.animationDelay = `${index * 0.1}s`;
+                timeBlock.innerHTML = `
+                    <div class="flex justify-between items-center">
+                        <span class="font-medium">${time}</span>
+                        <span class="text-sm text-secondary dark:text-gray-400">时间段${index + 1}</span>
+                    </div>
+                `;
+                scheduleContainer.appendChild(timeBlock);
+            });
+        }
+
+        // 生成未来几天的预览
+        function generatePreview(startDate) {
+            previewContainer.innerHTML = '';
             
-            // 重置错误提示
-            document.getElementById("errorMsg").style.display = "none";
+            for (let i = 0; i < 5; i++) {
+                const currentDate = new Date(startDate);
+                currentDate.setDate(startDate.getDate() + i);
+                
+                // 计算与基准日期的差值（天数）
+                const diffTime = currentDate.getTime() - baseDate.getTime();
+                const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
 
-            // 验证日期格式（防止无效日期）
-            if (isNaN(startDate.getTime())) {
-                showError("起始日格式错误，请选择有效的日期");
-                return;
+                // 计算是循环中的第几天（1-5）
+                let cycleDay = (diffDays % 5) + 1;
+                if (cycleDay <= 0) cycleDay += 5; // 处理负数情况
+
+                // 获取对应的时间表
+                const schedule = scheduleData.find(item => item.day === cycleDay);
+
+                // 创建预览卡片
+                const previewCard = document.createElement('div');
+                previewCard.className = `glass rounded-lg p-4 shadow transition-all-300 hover:shadow-lg cursor-pointer ${i === 0 ? 'ring-2 ring-primary dark:ring-blue-400' : ''}`;
+                previewCard.style.animationDelay = `${i * 0.1}s`;
+                previewCard.style.animation = 'fadeIn 0.5s ease-in-out forwards';
+                
+                // 格式化日期显示
+                const isToday = i === 0 && isSameDay(currentDate, new Date());
+                const dateDisplay = isToday ? '今天' : formatDateForPreview(currentDate);
+                
+                // 设置卡片内容
+                previewCard.innerHTML = `
+                    <h4 class="font-semibold mb-2 ${isToday ? 'text-primary dark:text-blue-400' : ''}">${dateDisplay}</h4>
+                    <p class="text-sm text-secondary dark:text-gray-400 mb-3">${schedule.label}</p>
+                    <div class="space-y-2">
+                        ${schedule.times.map(time => `
+                            <div class="text-sm bg-white/50 dark:bg-gray-700/50 rounded p-2">${time}</div>
+                        `).join('')}
+                    </div>
+                `;
+                
+                // 添加点击事件
+                previewCard.addEventListener('click', () => {
+                    dateInput.value = formatDateForInput(currentDate);
+                    showSchedule(currentDate);
+                    
+                    // 更新选中状态
+                    document.querySelectorAll('#preview-container > div').forEach(card => {
+                        card.classList.remove('ring-2', 'ring-primary', 'dark:ring-blue-400');
+                    });
+                    previewCard.classList.add('ring-2', 'ring-primary', 'dark:ring-blue-400');
+                });
+                
+                previewContainer.appendChild(previewCard);
             }
-
-            // 确保起始日不晚于当前日期
-            if (startDate > today) {
-                showError("起始日不能晚于当前日期，请重新选择");
-                return;
-            }
-
-            // 计算起始日到今日的天数差（忽略时分秒，只算日期差）
-            const startDateOnly = new Date(startDate.getFullYear(), startDate.getMonth(), startDate.getDate());
-            const todayOnly = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-            const daysDiff = Math.floor((todayOnly - startDateOnly) / (1000 * 60 * 60 * 24));
-
-            // 计算当前在5天循环中的位置（0-4对应1-5天）
-            const cycleIndex = daysDiff % 5;
-            const todaySchedule = scheduleCycle[cycleIndex];
-
-            // 更新页面显示
-            document.getElementById("todayDate").textContent = 
-                `${today.getFullYear()}年${today.getMonth() + 1}月${today.getDate()}日`;
-			document.getElementById("cycleDay").textContent = `5天循环第${todaySchedule.day}天`;
-			document.getElementById("timeArrangement").textContent = `今日时间安排：${todaySchedule.time}`;
-			document.getElementById("timeDesc").textContent = `时段说明：${todaySchedule.desc}`;
-         
-        
         }
 
-        // 显示错误提示
-        function showError(msg) {
-            const errorEl = document.getElementById("errorMsg");
-            errorEl.textContent = msg;
-            errorEl.style.display = "block";
-            // 清空时间表显示
-            document.getElementById("cycleDay").textContent = "";
-            document.getElementById("timeArrangement").textContent = "";
-            document.getElementById("timeDesc").textContent = "";
+        // 辅助函数：格式化日期为输入框格式（YYYY-MM-DD）
+        function formatDateForInput(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
         }
+
+        // 辅助函数：格式化日期为显示格式（YYYY年MM月DD日 星期X）
+        function formatDateForDisplay(date) {
+            const year = date.getFullYear();
+            const month = date.getMonth() + 1;
+            const day = date.getDate();
+            const weekdays = ['日', '一', '二', '三', '四', '五', '六'];
+            const weekday = weekdays[date.getDay()];
+            return `${year}年${month}月${day}日 星期${weekday}`;
+        }
+
+        // 辅助函数：格式化日期为预览格式（MM-DD 星期X）
+        function formatDateForPreview(date) {
+            const month = date.getMonth() + 1;
+            const day = date.getDate();
+            const weekdays = ['日', '一', '二', '三', '四', '五', '六'];
+            const weekday = weekdays[date.getDay()];
+            return `${month}-${day} 星期${weekday}`;
+        }
+
+        // 辅助函数：判断两个日期是否为同一天
+        function isSameDay(date1, date2) {
+            return date1.getFullYear() === date2.getFullYear() &&
+                   date1.getMonth() === date2.getMonth() &&
+                   date1.getDate() === date2.getDate();
+        }
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', initPage);
     </script>
 </body>
 </html>
-
-
-
-
-
-
-
